@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Quiz</title>
+    <link rel="stylesheet" href="src/css/style.css" />
+  </head>
+  <body>
+    <div class="welcome-screen" id="welcomeScreen">
+      <p class="welcome-text">
+        Приветствуем тебя, дорогой друг, от команды Shining ☀☃!<br />
+        Именно для тебя и твоих друзей, мы приготовили интересную викторину,
+        благодаря которой мы сможем наглядно увидеть, насколько хорошо ты знаешь
+        Академию Туризма.
+      </p>
+      <button class="start-button" id="startButton">Начать</button>
+    </div>
+    <div class="container" id="quizContainer" style="display: none">
+      <div class="quiz-progress" id="quizProgress"></div>
+      <div class="question-container" id="questionContainer"></div>
+      <div class="answer-container" id="answerContainer"></div>
+    </div>
+  </body>
+  <script src="src/js/main.js"></script>
+  <script type="text/javascript"
+        src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js">
+</script>
+</html>
