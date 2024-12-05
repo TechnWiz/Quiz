@@ -112,7 +112,7 @@ const questions = [
       { text: "Логотип 2", image: "src/images/logo2.jpg" },
       { text: "Логотип 3", image: "src/images/logo3.jpg" },
     ],
-    correctAnswer: "src/images/logo2.jpg",
+    correctAnswer: "Логотип 1",
   },
   {
     topic: "Партнеры",
@@ -302,7 +302,7 @@ function sendAnswersToEmail(responses) {
 function showFinalResult() {
   quiestionContainer.innerHTML = `
     <h2 style="color: white">Ваш результат</h2>
-    <p style="color: white">Вы ответили правильно на ${score} из ${questions.length} вопросов!</p>
+    <p style="color: white">Вы ответили правильно на ${score} из 13 вопросов!</p>
   `;
   answerContainer.innerHTML = `<button onclick="restartQuiz()">Пройти заново</button>`;
 }
