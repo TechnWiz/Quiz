@@ -233,7 +233,9 @@ function handleQuestion(index, e) {
       const userInput = document.getElementById("userInput").value;
       if (userInput.trim() !== "") {
         saveUserResponse(index, userInput); // Сохранить пользовательский ответ
-
+if (userInput.toLowerCase() === questions[index].correctAnswer.toLowerCase()) {
+  score++;
+}
         if (index === 15) {
           sendAnswersToEmail(userResponses); // Отправить ответы на email
         }
