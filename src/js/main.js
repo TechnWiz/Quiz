@@ -146,72 +146,169 @@ const questions = [
   },
 ];
 
-    const welcomeScreen = document.getElementById("welcomeScreen");
-    const quizContainer = document.getElementById("quizContainer");
-    const startButton = document.getElementById("startButton");
-    const quizProgress = document.getElementById("quizProgress");
-    const questionContainer = document.getElementById("questionContainer");
-    const answerContainer = document.getElementById("answerContainer");
+const welcomeScreen = document.getElementById("welcomeScreen");
+const quizContainer = document.getElementById("quizContainer");
+const startButton = document.getElementById("startButton");
 
-    let currentQuestionIndex = 0;
-    let score = 0;
+startButton.addEventListener("click", () => {
+  // Скрываем приветственный экран
+  welcomeScreen.style.display = "none";
 
-    startButton.addEventListener("click", () => {
-      welcomeScreen.style.display = "none";
-      quizContainer.style.display = "block";
-      handleQuestion(currentQuestionIndex);
-    });
+  // Показываем экран викторины
+  quizContainer.style.display = "block";
 
-    function handleQuestion(index) {
-      // Очистка прогресса
-      quizProgress.innerHTML = questions
-        .map((_, i) => `<span class="${i < index ? "seen" : ""}"></span>`)
-        .join("");
+  // Загружаем первый вопрос викторины
+  handleQuestion(currentQuestionIndex);
+});
 
-      // Очистка предыдущего содержимого
-      questionContainer.innerHTML = "";
-      answerContainer.innerHTML = "";
+const quizProgress = document.getElementById("quizProgress");
+const quiestionContainer = document.getElementById("questionContainer");
+const answerContainer = document.getElementById("answerContainer");
+let currentQuestionIndex = 0;
 
-      // Отображение вопроса
-      const question = questions[index];
-      questionContainer.innerHTML = `
-        <h2>${question.topic}</h2>
-        <p>${question.question}</p>
-      `;
+let score = 0; // Счетчик правильных ответов
+let userResponses = {}; // Сохранение ответов пользователя
 
-      // Добавление вариантов ответа
-      question.possibleAnswers.forEach((answer) => {
-        const button = document.createElement("button");
-        button.textContent = answer;
-        button.addEventListener("click", () => {
-          if (answer === question.correctAnswer) {
-            score++;
-          }
-          goToNextQuestion();
-        });
-        answerContainer.appendChild(button);
+function handleQuestion(index, e) {
+  // Очистка прогресса и отображение прогресс-бара
+  quizProgress.innerHTML = "";
+  questions.forEach(() => {
+    quizProgress.innerHTML += "<span></span>";
+  });
+
+  let spans = document.querySelectorAll("span");
+  for (let i = 0; i < index; i++) {
+    spans[i].classList.add("seen");
+  }
+
+  // Очистка предыдущего содержимого
+  quiestionContainer.innerHTML = "";
+  answerContainer.innerHTML = "";
+
+  // Отображение темы и вопроса
+  quiestionContainer.innerHTML = `
+    <p>${questions[index].topic}</p>
+    <p>${questions[index].question}</p>
+  `;
+
+  // Обработка вариантов ответа
+  if (questions[index].possibleAnswers.length > 0) {
+    if (questions[index].possibleAnswers[0]?.image) {
+      // Вопросы с изображениями
+      questions[index].possibleAnswers.forEach((answer) => {
+        answerContainer.innerHTML += `
+          <div style="margin-bottom: 20px; text-align: center;">
+            <img src="${answer.image}" alt="${answer.text}" style="width: 150px; height: auto; display: block; margin: 0 auto;" />
+            <button style="margin-top: 10px;">${answer.text}</button>
+          </div>
+        `;
+      });
+    } else {
+      // Текстовые варианты ответа
+      questions[index].possibleAnswers.forEach((answer) => {
+        answerContainer.innerHTML += `<button>${answer}</button>`;
       });
     }
 
-    function goToNextQuestion() {
-      currentQuestionIndex++;
-      if (currentQuestionIndex < questions.length) {
-        handleQuestion(currentQuestionIndex);
+    let answers = document.querySelectorAll("#answerContainer button");
+    answers.forEach((answer) => {
+      answer.addEventListener("click", (e) => {
+        if (e.target.textContent === questions[index].correctAnswer.trim()) {
+          score++;
+        }
+
+        saveUserResponse(index, e.target.textContent); // Сохранить ответ пользователя
+        goToNextQuestion(index);
+      });
+    });
+  } else if (index === 13 || index === 14 || index === 15) {
+    // Вопросы с пользовательским вводом
+    answerContainer.innerHTML = `
+      <input type="text" id="userInput" placeholder="Ваш ответ..." />
+      <button id="submitAnswer">Отправить</button>
+    `;
+
+    const submitButton = document.getElementById("submitAnswer");
+    submitButton.addEventListener("click", () => {
+      const userInput = document.getElementById("userInput").value;
+      if (userInput.trim() !== "") {
+        saveUserResponse(index, userInput); // Сохранить пользовательский ответ
+
+        if (index === 15) {
+          sendAnswersToEmail(userResponses); // Отправить ответы на email
+        }
+
+        goToNextQuestion(index);
       } else {
-        showFinalResult();
+        alert("Пожалуйста, введите ответ.");
       }
-    }
+    });
+  }
+}
 
-    function showFinalResult() {
-      questionContainer.innerHTML = `
-        <h2>Ваш результат</h2>
-        <p>Вы ответили правильно на ${score} из ${questions.length} вопросов!</p>
-      `;
-      answerContainer.innerHTML = `<button onclick="restartQuiz()">Пройти заново</button>`;
-    }
+// Переход к следующему вопросу
+function goToNextQuestion(index) {
+  if (index === questions.length - 1) {
+    showFinalResult(); // Показать результаты
+  } else {
+    currentQuestionIndex++;
+    handleQuestion(currentQuestionIndex);
+  }
+}
 
-    function restartQuiz() {
-      currentQuestionIndex = 0;
-      score = 0;
-      handleQuestion(currentQuestionIndex);
-    }
+// Сохранение ответов пользователя
+function saveUserResponse(index, response) {
+  userResponses[index] = {
+    question: questions[index].question,
+    answer: response,
+  };
+}
+
+// Отправка ответов на email
+function sendAnswersToEmail(responses) {
+  const emailContent = Object.entries(responses)
+    .map(
+      ([index, response]) =>
+        `Вопрос ${Number(index) + 1}: ${response.question}\nОтвет: ${
+          response.answer
+        }\n`
+    )
+    .join("\n");
+
+  // Инициализация EmailJS
+  emailjs.init("b4rGtldbDMlzXSqzK"); // Замените "Ваш_Public_Key" на ваш публичный ключ
+
+  // Отправка email
+  emailjs
+    .send("service_2d2y6xh", "template_evxqdm8", {
+      subject: "Ответы на викторину",
+      message: emailContent,
+    })
+    .then(
+      (response) => {
+        console.log("Email отправлен успешно!", response.status, response.text);
+        alert("Спасибо за пройденную викторину!");
+      },
+      (error) => {
+        console.error("Ошибка отправки email:", error);
+        console.log("Не удалось отправить ответы. Попробуйте позже.");
+      }
+    );
+}
+
+// Показ финального результата
+function showFinalResult() {
+  quiestionContainer.innerHTML = `
+    <h2 style="color: white">Ваш результат</h2>
+    <p style="color: white">Вы ответили правильно на ${score} из ${questions.length} вопросов!</p>
+  `;
+  answerContainer.innerHTML = `<button onclick="restartQuiz()">Пройти заново</button>`;
+}
+
+// Перезапуск викторины
+function restartQuiz() {
+  currentQuestionIndex = 0;
+  score = 0;
+  userResponses.length = 0;
+  handleQuestion(currentQuestionIndex);
+}
