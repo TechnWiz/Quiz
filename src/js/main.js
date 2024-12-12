@@ -101,8 +101,8 @@ const questions = [
   {
     topic: "Год основания",
     question: "В каком году основали АТ?",
-    possibleAnswers: ["2004г.", "1994г.", "2023г."],
-    correctAnswer: "1994г.",
+    possibleAnswers: ["2004г.", "1994г.", "1996г."],
+    correctAnswer: "1996г.",
   },
   {
     topic: "Логотип АТ",
