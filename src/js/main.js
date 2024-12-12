@@ -140,7 +140,7 @@ const questions = [
   },
   {
     topic: "Для справки",
-    question: "Ваше ФИО",
+    question: "Ваше ФИО,курс-группа,рег номер",
     possibleAnswers: [],
     correctAnswer: "",
   },
